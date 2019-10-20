@@ -1,0 +1,623 @@
+<!doctype html>
+
+
+
+  
+
+
+<html class="theme-next muse use-motion">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+  <link href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+<link href="/vendors/font-awesome/css/font-awesome.min.css?v=4.4.0" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.0.1" rel="stylesheet" type="text/css">
+
+
+  <meta name="keywords" content="语法,">
+
+
+
+
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico?v=5.0.1">
+
+
+
+
+
+
+<meta name="description" content="应用 空类型安全Kotlin引入了可空类型（用？标识），在编译期杜绝了可空类型直接调用方法的可能。 12345678910var a: String = &quot;abc&quot;a = null // 编译错误var b: String? = &quot;abc&quot;b = null // okval l = a.lengthval l = b.length // 错误：变量“b”可能为空val l = b?.length">
+<meta name="keywords" content="语法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Kotlin在项目中的应用和踩过的坑">
+<meta property="og:url" content="http://yoursite.com/2018/03/17/Kotlin在项目中的应用和踩过的坑/index.html">
+<meta property="og:site_name" content="chenleejr&#39;s Notes">
+<meta property="og:description" content="应用 空类型安全Kotlin引入了可空类型（用？标识），在编译期杜绝了可空类型直接调用方法的可能。 12345678910var a: String = &quot;abc&quot;a = null // 编译错误var b: String? = &quot;abc&quot;b = null // okval l = a.lengthval l = b.length // 错误：变量“b”可能为空val l = b?.length">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2019-10-20T20:46:56.559Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Kotlin在项目中的应用和踩过的坑">
+<meta name="twitter:description" content="应用 空类型安全Kotlin引入了可空类型（用？标识），在编译期杜绝了可空类型直接调用方法的可能。 12345678910var a: String = &quot;abc&quot;a = null // 编译错误var b: String? = &quot;abc&quot;b = null // okval l = a.lengthval l = b.length // 错误：变量“b”可能为空val l = b?.length">
+
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    scheme: 'Muse',
+    sidebar: {"position":"left","display":"post"},
+    fancybox: true,
+    motion: true,
+    duoshuo: {
+      userId: undefined,
+      author: '博主'
+    }
+  };
+</script>
+
+  <title> Kotlin在项目中的应用和踩过的坑 | chenleejr's Notes </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-meta ">
+  
+
+  <div class="custom-logo-site-title">
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <span class="site-title">chenleejr's Notes</span>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+  <p class="site-subtitle"></p>
+</div>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-home fa-fw"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            
+              <i class="menu-item-icon fa fa-th fa-fw"></i> <br>
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-archive fa-fw"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-tags fa-fw"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    
+      <header class="post-header">
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                Kotlin在项目中的应用和踩过的坑
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2018-03-17T02:08:00+08:00" content="2018-03-17">
+              2018-03-17
+            </time>
+          </span>
+
+          
+            <span class="post-category">
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Kotlin/" itemprop="url" rel="index">
+                    <span itemprop="name">Kotlin</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+            &nbsp; | &nbsp;字数
+            <span class="post-count">3,106</span>
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><ul>
+<li><h3 id="空类型安全"><a href="#空类型安全" class="headerlink" title="空类型安全"></a>空类型安全</h3><p>Kotlin引入了可空类型（用？标识），在编译期杜绝了可空类型直接调用方法的可能。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a: String = <span class="string">"abc"</span></span><br><span class="line">a = <span class="keyword">null</span> <span class="comment">// 编译错误</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> b: String? = <span class="string">"abc"</span></span><br><span class="line">b = <span class="keyword">null</span> <span class="comment">// ok</span></span><br><span class="line"></span><br><span class="line">val l = a.length</span><br><span class="line"></span><br><span class="line">val l = b.length <span class="comment">// 错误：变量“b”可能为空</span></span><br><span class="line">val l = b?.length ?: <span class="number">0</span></span><br></pre></td></tr></table></figure>
+</li>
+<li><h3 id="链式调用"><a href="#链式调用" class="headerlink" title="链式调用"></a>链式调用</h3><p>灵活使用Kotlin提供的let、apply、takeIf这些方法，用链式调用的方式组织代码，可以将一大串逻辑分割成几块。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">File(url).takeIf &#123; it.exists() &#125;</span><br><span class="line">        ?.let &#123;</span><br><span class="line">            JSONObject(NetworkUtils.postFile(SERVER_URL, url))</span><br><span class="line">        &#125;?.takeIf &#123; it.optString(<span class="string">"message"</span>) == <span class="string">"success"</span> &#125;</span><br><span class="line">        ?.let &#123;</span><br><span class="line">            post(it.optString(<span class="string">"result"</span>))</span><br><span class="line">        &#125; ?: mHandler.post &#123; view?.onFail() &#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><h3 id="默认参数"><a href="#默认参数" class="headerlink" title="默认参数"></a>默认参数</h3><p>普通的带有默认参数的方法Java是无法调用的，因为Kotlin对默认参数的处理并不是生成多个方法，而是给方法添加几个额外参数记录调用者传递了多少参数，加上了JvmOverloads这个注解之后才会生成多个方法供Java调用。并且Kotlin调用方法可以指定参数名。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">CustomLayout</span> @<span class="title">JvmOverloads</span> <span class="title">constructor</span>(</span></span><br><span class="line">        context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0</span><br><span class="line">) : FrameLayout(context, attrs, defStyleAttr), LifeCycleMonitor &#123;</span><br><span class="line">    <span class="comment">// pass</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><h3 id="扩展方法"><a href="#扩展方法" class="headerlink" title="扩展方法"></a>扩展方法</h3><p>扩展方法在项目里使用得比较少，但是Kotlin提供的很多语法糖都是利用扩展方法实现的，例如forEach、let之类的方法。扩展方法的原理是生成一个静态方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// _Collections.kt里的扩展方法</span></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Performs the given [action] on each element.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@kotlin</span>.internal.HidesMembers</span><br><span class="line"><span class="keyword">public</span> inline fun &lt;T&gt; Iterable&lt;T&gt;.forEach(action: (T) -&gt; Unit): Unit &#123;</span><br><span class="line">    <span class="keyword">for</span> (element in <span class="keyword">this</span>) action(element)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><h3 id="操作符重载"><a href="#操作符重载" class="headerlink" title="操作符重载"></a>操作符重载</h3><p>Kotlin会将一些常用的表达式翻译为方法调用，最常用的有将 list[0] 翻译成 list.get(0) ，将 map[0] = someObject 翻译成 map.set(0, someObject)。实际上任意实现operator fun get(a : Any) : Any 和 operator fun set(a : Any, b : Any) 方法的类都可以使用以上两种表达式。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 操作符重载在Kotlin的语法中随处可见，下面这个例子说明了</span></span><br><span class="line"><span class="keyword">for</span> (i in <span class="number">1</span>..<span class="number">10</span>) &#123;</span><br><span class="line">    <span class="comment">// pass</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// 是如何工作的，首先明白表达式 .. 对应 rangeTo 方法，表达式 in 对应 contains 方法</span></span><br><span class="line"> </span><br><span class="line"><span class="comment">// 在Primitives.kt文件中的Int类里</span></span><br><span class="line"> <span class="comment">/** Creates a range from this value to the specified [other] value. */</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> operator fun <span class="title">rangeTo</span><span class="params">(other: Int)</span>: IntRange</span></span><br><span class="line"><span class="function"> </span></span><br><span class="line"><span class="function"><span class="comment">// 在IntRange类里可以发现 in 这个表达式对应的方法调用 contains</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> class <span class="title">IntRange</span><span class="params">(start: Int, endInclusive: Int)</span> : <span class="title">IntProgression</span><span class="params">(start, endInclusive, <span class="number">1</span>)</span>, ClosedRange&lt;Int&gt; </span>&#123;</span><br><span class="line">    override val start: <span class="function">Int <span class="title">get</span><span class="params">()</span> </span>= first</span><br><span class="line">    override val endInclusive: <span class="function">Int <span class="title">get</span><span class="params">()</span> </span>= last</span><br><span class="line"> </span><br><span class="line">    <span class="function">override fun <span class="title">contains</span><span class="params">(value: Int)</span>: Boolean </span>= first &lt;= value &amp;&amp; value &lt;= last</span><br></pre></td></tr></table></figure>
+<p><a href="https://www.kotlincn.net/docs/reference/operator-overloading.html" target="_blank" rel="noopener">Kotlin中操作符重载所有表达式与方法调用对应关系</a></p>
+</li>
+</ul>
+<ul>
+<li><h3 id="不再使用findViewById"><a href="#不再使用findViewById" class="headerlink" title="不再使用findViewById"></a>不再使用findViewById</h3><p>在build.gradle中添加 apply plugin:’kotlin-android-extensions’ 就可以直接在代码中用View的id来代替这个View对象。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">override fun <span class="title">onCreate</span><span class="params">(savedInstanceState: Bundle?)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">super</span>.onCreate(savedInstanceState)</span><br><span class="line">    iv_feedback.setOnClickListener(<span class="keyword">this</span>)</span><br><span class="line">    iv_back.setOnClickListener(<span class="keyword">this</span>)</span><br><span class="line">    btn_feedback.setOnClickListener(<span class="keyword">this</span>)</span><br></pre></td></tr></table></figure>
+<p>反编译发现，这种用法的原理是Kotlin会自动生成findViewById的代码，在Activity、Fragment和自定义View中Kotlin会使用一个map缓存每次查找到的View，避免每次调用View的方法都会重新调用一次findViewById，但是需要注意的是通过View.id这种方式获取子View的时候没有缓存，所以在RecyclerView的ViewHolder中都会使用一个属性来存储ItemView的某个子View。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Activity中的逻辑</span></span><br><span class="line"><span class="keyword">public</span> View _$_findCachedViewById(<span class="keyword">int</span> var1) &#123;</span><br><span class="line">   <span class="keyword">if</span>(<span class="keyword">this</span>._$_findViewCache == <span class="keyword">null</span>) &#123;</span><br><span class="line">      <span class="keyword">this</span>._$_findViewCache = <span class="keyword">new</span> HashMap();</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   View var2 = (View)<span class="keyword">this</span>._$_findViewCache.get(Integer.valueOf(var1));</span><br><span class="line">   <span class="keyword">if</span>(var2 == <span class="keyword">null</span>) &#123;</span><br><span class="line">      <span class="comment">// Fragment的代码中这里会调用getView.findViewById，所以通过id调用方法需要在onCreateView生命周期之后使用</span></span><br><span class="line">      var2 = <span class="keyword">this</span>.findViewById(var1);</span><br><span class="line">      <span class="keyword">this</span>._$_findViewCache.put(Integer.valueOf(var1), var2);</span><br><span class="line">   &#125;</span><br><span class="line"> </span><br><span class="line">   <span class="keyword">return</span> var2;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// RecyclerView的ViewHolder中都会使用一个属性来存储ItemView的某个子View</span></span><br><span class="line"><span class="keyword">private</span> val mLabelImage = itemView.label_image</span><br><span class="line"><span class="keyword">private</span> val mLabelType = itemView.label_type</span><br></pre></td></tr></table></figure>
+</li>
+<li><h3 id="与属性相关的一些改变"><a href="#与属性相关的一些改变" class="headerlink" title="与属性相关的一些改变"></a>与属性相关的一些改变</h3><ul>
+<li><h6 id="自带getter-setter"><a href="#自带getter-setter" class="headerlink" title="自带getter/setter"></a>自带getter/setter</h6><p>Kotlin类里的属性自带getter/setter，访问权限可以修改，也可以重写get/set方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> someString : String</span><br><span class="line">   get() = <span class="string">"this$&#123;toString()&#125;"</span></span><br><span class="line">   <span class="function"><span class="keyword">protected</span> <span class="title">set</span><span class="params">(value)</span> </span>&#123;</span><br><span class="line">       Log.e(TAG, <span class="string">"setValue$value"</span>)</span><br><span class="line">       field = value</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><h6 id="可以定义在类声明里"><a href="#可以定义在类声明里" class="headerlink" title="可以定义在类声明里"></a>可以定义在类声明里</h6><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">open class <span class="title">Message</span><span class="params">(val id: Long,</span></span></span><br><span class="line"><span class="function"><span class="params">                       val type: Int,</span></span></span><br><span class="line"><span class="function"><span class="params">                       val time: Long,</span></span></span><br><span class="line"><span class="function"><span class="params">                       val status : Int)</span></span></span><br></pre></td></tr></table></figure>
+</li>
+<li><h6 id="lateInit和by-lazy"><a href="#lateInit和by-lazy" class="headerlink" title="lateInit和by lazy"></a>lateInit和by lazy</h6><p>对于一些没有在构造函数里赋值的非空类型对象，可以使用lateinit和by lazy来延迟初始化。</p>
+</li>
+</ul>
+<h2 id="坑"><a href="#坑" class="headerlink" title="坑"></a>坑</h2><h3 id="Java调用Kotlin方法时空类型不再安全"><a href="#Java调用Kotlin方法时空类型不再安全" class="headerlink" title="Java调用Kotlin方法时空类型不再安全"></a>Java调用Kotlin方法时空类型不再安全</h3><p>Java里调用kotlin方法，空对象传递给Kotlin的非可空参数会抛异常，但是Kotlin无法判断Java传递的对象是否可能为空，所以编译器不会报异常。在将Java工程转变成Kotlin工程的过程中不能忽略这个坑。</p>
+<h2 id="更多"><a href="#更多" class="headerlink" title="更多"></a>更多</h2><h3 id="协程"><a href="#协程" class="headerlink" title="协程"></a>协程</h3><h3 id="Anko-Layouts代替xml"><a href="#Anko-Layouts代替xml" class="headerlink" title="Anko Layouts代替xml"></a>Anko Layouts代替xml</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"> verticalLayout &#123;</span><br><span class="line">    val name = editText()</span><br><span class="line">    button(<span class="string">"Say Hello"</span>) &#123;</span><br><span class="line">        onClick &#123; toast(<span class="string">"Hello, $&#123;name.text&#125;!"</span>) &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></li>
+</ul>
+
+      
+    </div>
+    
+    <div>
+      
+        
+      
+    </div>
+
+    <div>
+      
+        
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/语法/" rel="tag">#语法</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/03/11/个人使用Kotlin的几种习惯用法/" rel="next" title="个人使用Kotlin的几种习惯用法">
+                <i class="fa fa-chevron-left"></i> 个人使用Kotlin的几种习惯用法
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview sidebar-panel ">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image" src="/images/psb.jpg" alt="chenleejr">
+          <p class="site-author-name" itemprop="name">chenleejr</p>
+          <p class="site-description motion-element" itemprop="description"></p>
+        </div>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">4</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          
+            <div class="site-state-item site-state-categories">
+              <a href="/categories">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">分类</span>
+              </a>
+            </div>
+          
+
+          
+            <div class="site-state-item site-state-tags">
+              <a href="/tags">
+                <span class="site-state-item-count">5</span>
+                <span class="site-state-item-name">标签</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+
+        <div class="links-of-author motion-element">
+          
+            
+              <span class="links-of-author-item">
+                <a href="https://github.com/chenleejr" target="_blank" title="GitHub">
+                  
+                    <i class="fa fa-github"></i>
+                  
+                  GitHub
+                </a>
+              </span>
+            
+          
+        </div>
+
+        
+        
+
+        
+        
+
+      </section>
+
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#应用"><span class="nav-number">1.</span> <span class="nav-text">应用</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#空类型安全"><span class="nav-number">1.1.</span> <span class="nav-text">空类型安全</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#链式调用"><span class="nav-number">1.2.</span> <span class="nav-text">链式调用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#默认参数"><span class="nav-number">1.3.</span> <span class="nav-text">默认参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#扩展方法"><span class="nav-number">1.4.</span> <span class="nav-text">扩展方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#操作符重载"><span class="nav-number">1.5.</span> <span class="nav-text">操作符重载</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#不再使用findViewById"><span class="nav-number">1.6.</span> <span class="nav-text">不再使用findViewById</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#与属性相关的一些改变"><span class="nav-number">1.7.</span> <span class="nav-text">与属性相关的一些改变</span></a><ol class="nav-child"><li class="nav-item nav-level-6"><a class="nav-link" href="#自带getter-setter"><span class="nav-number">1.7.0.0.1.</span> <span class="nav-text">自带getter/setter</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#可以定义在类声明里"><span class="nav-number">1.7.0.0.2.</span> <span class="nav-text">可以定义在类声明里</span></a></li><li class="nav-item nav-level-6"><a class="nav-link" href="#lateInit和by-lazy"><span class="nav-number">1.7.0.0.3.</span> <span class="nav-text">lateInit和by lazy</span></a></li></ol></li></ol></li></ol><li class="nav-item nav-level-2"><a class="nav-link" href="#坑"><span class="nav-number">2.</span> <span class="nav-text">坑</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Java调用Kotlin方法时空类型不再安全"><span class="nav-number">2.1.</span> <span class="nav-text">Java调用Kotlin方法时空类型不再安全</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#更多"><span class="nav-number">3.</span> <span class="nav-text">更多</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#协程"><span class="nav-number">3.1.</span> <span class="nav-text">协程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Anko-Layouts代替xml"><span class="nav-number">3.2.</span> <span class="nav-text">Anko Layouts代替xml</span></a></li></ol></li></div>
+            
+          </div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">
+  
+  &copy;  2014 - 
+  <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">chenleejr</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Muse
+  </a>
+</div>
+
+        
+
+        
+      </div>
+    </footer>
+
+    <div class="back-to-top">
+      <i class="fa fa-arrow-up"></i>
+    </div>
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+  
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/vendors/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.0.1"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.0.1"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.1"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.1"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.0.1"></script>
+
+
+
+  
+
+
+
+  
+
+
+
+  
+  
+  
+
+  
+
+  
+
+</body>
+</html>
